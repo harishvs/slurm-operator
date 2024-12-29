@@ -88,3 +88,9 @@ cd helm/slurm
 helm dependency update
 helm package .
 helm push /home/ubuntu/slurm-operator/helm/slurm/slurm-0.1.0.tgz oci://ghcr.io/$GITHUB_USER/charts
+
+cd ..
+cd slurm-operator
+helm dependency update
+helm package .
+helm push /home/ubuntu/slurm-operator/helm/slurm-operator/slurm-operator-0.1.0.tgz oci://ghcr.io/$GITHUB_USER/charts
