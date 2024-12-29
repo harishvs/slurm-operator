@@ -373,7 +373,7 @@ func newNodeSetPod(set *slinkyv1alpha1.NodeSet, nodeName, hash string) *corev1.P
 
 	// Set pod hostname to match the targeted node name to let user
 	// better correlate the Slurm node with the Kubernetes node.
-	pod.Spec.Hostname = nodeName
+	// pod.Spec.Hostname = nodeName
 
 	setPodRevision(pod, hash)
 	updateIdentity(set, pod)
