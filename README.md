@@ -87,4 +87,4 @@ docker push ghcr.io/$GITHUB_USER/charts:latest
 cd helm/slurm
 helm dependency update
 helm package .
-helm push /home/ubuntu/slurm-operator/helm/slurm/slurm-0.1.0.tgz oci://ghcr.io/harishvs/charts
+helm push /home/ubuntu/slurm-operator/helm/slurm/slurm-0.1.0.tgz oci://ghcr.io/$GITHUB_USER/charts
