@@ -77,20 +77,11 @@ specific language governing permissions and limitations under the License.
 
 ## how to build
 
-export CR_PAT=<github PAT>
-GITHUB_USER=<username>
-echo $CR_PAT | helm registry login ghcr.io -u $GITHUB_USER --password-stdin
-echo $CR_PAT | docker login ghcr.io -u $GITHUB_USER --password-stdin
+```
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/u1m6g1t5
 
-docker build -t ghcr.io/$GITHUB_USER/charts
-docker push ghcr.io/$GITHUB_USER/charts:latest
-cd helm/slurm
-helm dependency update
-helm package .
-helm push /home/ubuntu/slurm-operator/helm/slurm/slurm-0.1.0.tgz oci://ghcr.io/$GITHUB_USER/charts
+docker tag harish/slurm-operator-eks:latest public.ecr.aws/u1m6g1t5/harish/slurm-operator-eks:latest
 
-cd ..
-cd slurm-operator
-helm dependency update
-helm package .
-helm push /home/ubuntu/slurm-operator/helm/slurm-operator/slurm-operator-0.1.0.tgz oci://ghcr.io/$GITHUB_USER/charts
+docker push public.ecr.aws/u1m6g1t5/harish/slurm-operator-eks:latest
+
+```
