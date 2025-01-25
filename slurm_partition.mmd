@@ -1,0 +1,35 @@
+graph TB
+    subgraph "Kubernetes Cluster"
+        NC[NodeSet Controller]
+        NCRD[NodeSet CRD]
+        
+        subgraph "Physical/Virtual Machines"
+            VM1[Worker Node 1]
+            VM2[Worker Node 2]
+            VM3[Worker Node N]
+            
+            subgraph "Node Components"
+                SD[Slurm Daemon Pod]
+                SM[Slurm Monitoring Pod]
+                OTHER[Other System Pods]
+            end
+        end
+    end
+
+    subgraph "Slurm Cluster"
+        SCTL[Slurm Controller]
+        subgraph "Slurm Partition"
+            CN1[Compute Node 1]
+            CN2[Compute Node 2]
+            CN3[Compute Node N]
+        end
+    end
+
+    NC -->|Manages| NCRD
+    NCRD -->|Provisions| VM1
+    NCRD -->|Provisions| VM2
+    NCRD -->|Provisions| VM3
+    
+    VM1 -->|Registers as| CN1
+    VM2 -->|Registers as| CN2
+    VM3 -->|Registers as| CN3
