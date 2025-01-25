@@ -1,0 +1,59 @@
+graph TB
+    subgraph "Kubernetes Cluster"
+        API[Kubernetes API Server]
+        
+        subgraph "Slurm Operator"
+            CC[Cluster Controller]
+            NC[NodeSet Controller]
+            JC[Job Controller]
+            
+            subgraph "Custom Resources"
+                CR1[Cluster CRD]
+                CR2[NodeSet CRD]
+                CR3[Job CRD]
+            end
+            
+            subgraph "Internal Components"
+                SCM[Slurm Client Map]
+                SEC[Slurm Event Channel]
+                EH[Error Handler]
+            end
+        end
+        
+        subgraph "Slurm Cluster"
+            SC[Slurm Controller]
+            CN[Compute Nodes]
+            REST[Slurm REST API]
+        end
+    end
+
+    %% Controller connections
+    CC -->|Manages| CR1
+    NC -->|Manages| CR2
+    JC -->|Manages| CR3
+    
+    %% Internal component interactions
+    CC -->|Uses| SCM
+    CC -->|Uses| SEC
+    NC -->|Uses| EH
+    JC -->|Uses| SCM
+    
+    %% External interactions
+    API -->|Watch/Update| CR1
+    API -->|Watch/Update| CR2
+    API -->|Watch/Update| CR3
+    
+    %% Slurm interactions
+    SCM -->|Communicate| REST
+    REST -->|Control| SC
+    SC -->|Manage| CN
+
+    classDef controller fill:#f9f,stroke:#333,stroke-width:2px
+    classDef crd fill:#bbf,stroke:#333,stroke-width:2px
+    classDef internal fill:#bfb,stroke:#333,stroke-width:2px
+    classDef external fill:#fbb,stroke:#333,stroke-width:2px
+    
+    class CC,NC,JC controller
+    class CR1,CR2,CR3 crd
+    class SCM,SEC,EH internal
+    class SC,CN,REST external

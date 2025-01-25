@@ -1,0 +1,30 @@
+graph TB
+    subgraph "Kubernetes Cluster"
+        NC[NodeSet Controller]
+        NCRD[NodeSet CRD]
+        
+        subgraph "NodeSet Specification"
+            COUNT[Node Count]
+            INST[Instance Type]
+            CONF[Slurm Config]
+            SCAL[Scaling Policy]
+        end
+    end
+
+    subgraph "Slurm Cluster"
+        SP[Slurm Partition]
+        CN1[Compute Node 1]
+        CN2[Compute Node 2]
+        CNX[Compute Node N]
+    end
+
+    NCRD -->|Defines| COUNT
+    NCRD -->|Specifies| INST
+    NCRD -->|Configures| CONF
+    NCRD -->|Controls| SCAL
+    
+    NC -->|Manages| NCRD
+    NC -->|Creates/Scales| SP
+    SP -->|Contains| CN1
+    SP -->|Contains| CN2
+    SP -->|Contains| CNX

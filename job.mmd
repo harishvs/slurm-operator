@@ -1,0 +1,26 @@
+graph TB
+    subgraph "Job CRD Components"
+        JC[Job Controller]
+        JS[JobSpec]
+        JST[JobStatus]
+        
+        subgraph "Job Specification"
+            CMD[Command/Script]
+            RES[Resources Request]
+            ENV[Environment Variables]
+            CONS[Constraints]
+        end
+        
+        subgraph "Job Status"
+            ST[State]
+            EC[Exit Code]
+            NODES[Allocated Nodes]
+            TIME[Time Information]
+        end
+    end
+
+    User -->|Creates| JS
+    JC -->|Watches| JS
+    JC -->|Updates| JST
+    JC -->|Submits| Slurm[Slurm Workload Manager]
+    Slurm -->|Updates| JST
