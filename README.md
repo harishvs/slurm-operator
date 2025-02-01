@@ -78,7 +78,7 @@ specific language governing permissions and limitations under the License.
 ## how to build
 
 ```
-image_tag="4.0.0"
+image_tag="6.0.0"
 aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/u1m6g1t5
 
 docker build -t harish/slurm-operator-eks .

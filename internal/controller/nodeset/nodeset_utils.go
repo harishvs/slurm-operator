@@ -62,7 +62,7 @@ func storageMatches(set *slinkyv1alpha1.NodeSet, pod *corev1.Pod) bool {
 		volume, found := volumes[claim.Name]
 		if !found ||
 			volume.VolumeSource.PersistentVolumeClaim == nil ||
-			volume.VolumeSource.PersistentVolumeClaim.ClaimName != getPersistentVolumeClaimName(set, &claim, pod.Spec.Hostname) {
+			volume.VolumeSource.PersistentVolumeClaim.ClaimName != getPersistentVolumeClaimName(set, &claim, pod.Name) {
 			return false
 		}
 	}
@@ -223,7 +223,7 @@ func getPersistentVolumeClaims(set *slinkyv1alpha1.NodeSet, pod *corev1.Pod) map
 	claims := make(map[string]corev1.PersistentVolumeClaim, len(templates))
 	for i := range templates {
 		claim := templates[i]
-		claim.Name = getPersistentVolumeClaimName(set, &claim, pod.Spec.Hostname)
+		claim.Name = getPersistentVolumeClaimName(set, &claim, pod.Name)
 		claim.Namespace = set.Namespace
 		claim.Labels = set.Spec.Selector.MatchLabels
 		claims[templates[i].Name] = claim
@@ -308,7 +308,7 @@ func updateNodeSetPodAntiAffinity(affinity *corev1.Affinity) *corev1.Affinity {
 	}
 
 	podAffinityTerm := corev1.PodAffinityTerm{
-		TopologyKey: corev1.LabelHostname,
+		TopologyKey: corev1.LabelMetadataName,
 		LabelSelector: &metav1.LabelSelector{
 			MatchExpressions: []metav1.LabelSelectorRequirement{
 				labelSelectorRequirement,
@@ -366,15 +366,15 @@ func newNodeSetPod(set *slinkyv1alpha1.NodeSet, nodeName, hash string) *corev1.P
 	// The pod's NodeAffinity will be updated to make sure the Pod is bound
 	// to the target node by default scheduler. It is safe to do so because there
 	// should be no conflicting node affinity with the target node.
-	pod.Spec.Affinity = util.ReplaceDaemonSetPodNodeNameNodeAffinity(pod.Spec.Affinity, nodeName)
-
-	// The pod's PodAntiAffinity will be updated to make sure the Pod is not
-	// scheduled on the same Node as another NodeSet Pod.
-	pod.Spec.Affinity = updateNodeSetPodAntiAffinity(pod.Spec.Affinity)
+	//pod.Spec.Affinity = util.ReplaceDaemonSetPodNodeNameNodeAffinity(pod.Spec.Affinity, nodeName)
+	//
+	//// The pod's PodAntiAffinity will be updated to make sure the Pod is not
+	//// scheduled on the same Node as another NodeSet Pod.
+	//pod.Spec.Affinity = updateNodeSetPodAntiAffinity(pod.Spec.Affinity)
 
 	// Set pod hostname to match the targeted node name to let user
 	// better correlate the Slurm node with the Kubernetes node.
-	pod.Spec.Hostname = replaceDotWithHyphen(nodeName)
+	//pod.Spec.Hostname = getSafeNodeName(nodeName)
 
 	setPodRevision(pod, hash)
 	updateIdentity(set, pod)
@@ -639,13 +639,7 @@ func findUpdatedPodsOnNode(
 	return newPod, oldPod, true
 }
 
-// Ensure we don't use FQDN for nodeName as setting it as the hostName is not supported yet
-//maybe we can replace the dot with a -
+// Ensure we don't use FQDN for nodeName as setting it as the hostName is not supported yet.
 func getSafeNodeName(nodeName string) string {
-	return strings.Split(nodeName, ".")[0]
-}
-
-//write a funtion to replace all  . with a -
-func replaceDotWithHyphen(nodeName string) string {
 	return strings.ReplaceAll(nodeName, ".", "-")
 }

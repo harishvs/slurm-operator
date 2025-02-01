@@ -279,7 +279,7 @@ func (nsc *defaultNodeSetControl) updateSlurmNodeWithPodInfo(
 	}
 	slurmClient := nsc.slurmClusters.Get(clusterName)
 	if slurmClient != nil && !isNodeSetPodDelete(pod) {
-		objectKey := object.ObjectKey(pod.Spec.Hostname)
+		objectKey := object.ObjectKey(pod.Name)
 		slurmNode := &slurmtypes.Node{}
 		if err := slurmClient.Get(ctx, objectKey, slurmNode); err != nil {
 			return err
@@ -368,7 +368,7 @@ func (nsc *defaultNodeSetControl) syncSlurm(
 		_ = slurmtypes.NodeInfoParse(node.Comment, &nodeInfo)
 		noPodInfo := nodeInfo.Equal(slurmtypes.NodeInfo{})
 		if kubeNodes.Has(node.Name) || !hasCommunicationFailure || noPodInfo {
-			slurmNodes.Insert(replaceDotWithHyphen(node.Name))
+			slurmNodes.Insert(getSafeNodeName(node.Name))
 			continue
 		}
 		logger.Info("Deleting Slurm Node without a corresponding Pod", "Node", node.Name, "Pod", node.Comment)
@@ -383,7 +383,7 @@ func (nsc *defaultNodeSetControl) syncSlurm(
 			continue
 		}
 		for _, pod := range nodeSetPods {
-			if slurmNodes.Has(pod.Spec.Hostname) || !utils.IsHealthy(pod) || !utils.IsRunningAndAvailable(pod, 30) || isNodeSetPodDelete(pod) {
+			if slurmNodes.Has(pod.Name) || !utils.IsHealthy(pod) || !utils.IsRunningAndAvailable(pod, 30) || isNodeSetPodDelete(pod) {
 				continue
 			}
 			toUpdate := pod.DeepCopy()

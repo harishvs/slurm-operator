@@ -171,7 +171,7 @@ func (spc *NodeSetPodControl) isNodeSetPodDrain(
 		return false
 	}
 
-	objectKey := object.ObjectKey(pod.Spec.Hostname)
+	objectKey := object.ObjectKey(pod.Name)
 	slurmNode := &slurmtypes.Node{}
 	err := slurmClient.Get(ctx, objectKey, slurmNode)
 	if err != nil {
@@ -203,7 +203,7 @@ func (spc *NodeSetPodControl) updateSlurmNode(
 		}
 		slurmClient := spc.slurmClusters.Get(clusterName)
 		if slurmClient != nil && !isNodeSetPodDelete(pod) {
-			objectKey := object.ObjectKey(pod.Spec.Hostname)
+			objectKey := object.ObjectKey(pod.Name)
 			slurmNode := &slurmtypes.Node{}
 			if err := slurmClient.Get(ctx, objectKey, slurmNode); err != nil {
 				if err.Error() == http.StatusText(http.StatusNotFound) {
@@ -313,7 +313,7 @@ func (spc *NodeSetPodControl) isNodeSetPodDrained(
 		return false
 	}
 
-	objectKey := object.ObjectKey(pod.Spec.Hostname)
+	objectKey := object.ObjectKey(pod.Name)
 	slurmNode := &slurmtypes.Node{}
 	opts := &slurmclient.GetOptions{
 		RefreshCache: true,
@@ -352,7 +352,7 @@ func (spc *NodeSetPodControl) deleteSlurmNode(
 	if !spc.isNodeSetPodDrained(ctx, set, pod) && !isNodeSetPodDelete(pod) {
 		slurmClient := spc.slurmClusters.Get(clusterName)
 		if slurmClient != nil && !isNodeSetPodDelete(pod) {
-			objectKey := object.ObjectKey(pod.Spec.Hostname)
+			objectKey := object.ObjectKey(pod.Name)
 			slurmNode := &slurmtypes.Node{}
 			if err := slurmClient.Get(ctx, objectKey, slurmNode); err != nil {
 				if err.Error() == http.StatusText(http.StatusNotFound) {
@@ -407,7 +407,7 @@ func (spc *NodeSetPodControl) ClaimsMatchRetentionPolicy(
 	logger := log.FromContext(ctx)
 	templates := set.Spec.VolumeClaimTemplates
 	for i := range templates {
-		claimName := getPersistentVolumeClaimName(set, &templates[i], pod.Spec.Hostname)
+		claimName := getPersistentVolumeClaimName(set, &templates[i], pod.Name)
 		claim, err := spc.objectMgr.GetClaim(ctx, set.Namespace, claimName)
 		switch {
 		case apierrors.IsNotFound(err):
@@ -428,7 +428,7 @@ func (spc *NodeSetPodControl) UpdatePodClaimForRetentionPolicy(ctx context.Conte
 	logger := log.FromContext(ctx)
 	templates := set.Spec.VolumeClaimTemplates
 	for i := range templates {
-		claimName := getPersistentVolumeClaimName(set, &templates[i], pod.Spec.Hostname)
+		claimName := getPersistentVolumeClaimName(set, &templates[i], pod.Name)
 		claim, err := spc.objectMgr.GetClaim(ctx, set.Namespace, claimName)
 		switch {
 		case apierrors.IsNotFound(err):
